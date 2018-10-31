@@ -16,13 +16,23 @@
 
 					<div class="list-group">
 						@foreach($journals as $journal)
-							<a href="#" class="list-group-item list-group-item-action">
-								@if($journal->image)
-									<img class="d-inline-flex p-2 align-self-center" src="{{ $journal->image }}" style="width: 10%;">
+							<div class="list-group-item list-group-item-action">
+								<a href="#" class="card-link">
+									@if($journal->image)
+										<img class="d-inline-flex p-2 align-self-center" src="{{ $journal->image }}" style="width: 10%;">
+									@endif
+									<h4 class="d-inline-flex p-2 align-self-center">{{ $journal->title }}</h4>
+								</a>
+								@if(Auth::id() && Auth::user()->is_admin)
+									<a href="{{ route('delete.journal') }}" class="d-inline-flex p-2 align-self-center float-right card-link text-danger" onclick="event.preventDefault();
+														 document.getElementById('delete-form-{{ $journal->id }}').submit();">Delete</a>
+									<form id="delete-form-{{ $journal->id }}" action="{{ route('delete.journal') }}" method="POST" style="display: none;">
+										@csrf
+										<input type="hidden" name="journal_id" value="{{ $journal->id }}">
+									</form>
+									<a href="{{ route('edit.journal', $journal->id) }}" class="d-inline-flex p-2 align-self-center float-right card-link">Edit</a>
 								@endif
-								<h4 class="d-inline-flex p-2 align-self-center">{{ $journal->title }}</h4>
-								<p class="d-inline-flex p-2 align-self-center float-right">Delete</p>
-							</a>
+							</div>
 						@endforeach
 					</div>
 
