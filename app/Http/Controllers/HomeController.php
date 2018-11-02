@@ -34,6 +34,14 @@ class HomeController extends Controller
 		return view('home', $this->data);
 	}
 
+	public function showJournal($id)
+	{
+		$this->data['journal'] = Journal::find($id);
+		$this->data['authors'] = $this->data['journal']->authors()->orderBy('last_name')->orderBy('first_name')->paginate(5)->onEachSide(3);
+
+		return view('show_journal', $this->data);
+	}
+
 	public function createJournal()
 	{
 		if (!Auth::user()->is_admin) {
@@ -202,8 +210,69 @@ class HomeController extends Controller
 		$journal->date_prod = $request->date_prod;
 
 		$journal->save();
-		$journal->authors()->attach($request->authors);
+		$journal->authors()->sync($request->authors);
 
 		return redirect()->back()->with(['status' => 'Journal updated!']);
 	}
+
+	public function showAuthors()
+	{
+		$this->data['authors'] = Author::orderBy('last_name')->orderBy('first_name')->paginate(5)->onEachSide(3);
+
+		return view('show_authors', $this->data);
+	}
+
+	public function deleteAuthor(Request $request)
+	{
+		if (!Auth::user()->is_admin) {
+			return redirect(route('home'))->with(['status' => 'Permission denied']);
+		}
+
+		$author = Author::find($request->author_id);
+
+		$author->delete();
+
+		return redirect()->back()->with(['status' => 'Author deleted!']);
+	}
+
+	public function editAuthor($id)
+	{
+		if (!Auth::user()->is_admin) {
+			return redirect(route('home'))->with(['status' => 'Permission denied']);
+		}
+
+		$this->data['author'] = Author::find($id);
+
+		return view('edit_author', $this->data);
+	}
+
+	public function updateAuthor(Request $request)
+	{
+		if (!Auth::user()->is_admin) {
+			return redirect(route('home'))->with(['status' => 'Permission denied']);
+		}
+
+		$request->validate([
+			'last_name' => 'required|string|min:3',
+			'first_name' => 'required|string'
+		]);
+
+		$author = Author::find($request->author_id);
+
+		$author->first_name = $request->first_name;
+		$author->last_name = $request->last_name;
+
+		$author->save();
+
+		return redirect()->back()->with(['status' => 'Author updated!']);
+	}
+
+	public function showAuthor($id)
+	{
+		$this->data['author'] = Author::find($id);
+		$this->data['journals'] = $this->data['author']->journals()->orderByDesc('date_prod')->orderBy('title')->paginate(5)->onEachSide(3);
+
+		return view('show_author', $this->data);
+	}
+
 }

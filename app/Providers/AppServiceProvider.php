@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Journal;
+use App\Author;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
 		Journal::deleting(function ($journal) {
 			$journal->authors()->detach();
 		});
+
+		Author::deleting(function ($author)) {
+			$author->journals()->detach();
+		}
 	}
 
 	/**

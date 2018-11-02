@@ -34,6 +34,9 @@
 					<!-- Left Side Of Navbar -->
 					<ul class="navbar-nav mr-auto">
 						@auth
+							<li class="nav-item">
+								<a class="nav-link" href="{{ route('show.authors') }}">{{ __('Show authors') }}</a>
+							</li>
 							@if(Auth::user()->is_admin)
 								<li class="nav-item">
 									<a class="nav-link" href="{{ route('create.journal') }}">{{ __('Create journal') }}</a>
